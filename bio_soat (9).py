@@ -2,11 +2,13 @@ import asyncio
 from datetime import datetime
 import pytz
 from telethon import TelegramClient
+from telethon.sessions import StringSession
 from telethon.tl.functions.account import UpdateProfileRequest
 
 # === SOZLAMALAR ===
 API_ID = 18512808
 API_HASH = "3a93474fc8f3c16eb494faeb41a891c2"
+SESSION_STRING = "1ApWapzMBu4J8EHPOJvj1-SDQONiR-jNj6Blha9e5MNDViPDUi_GHjyvpwU8LC61xr3iFvcT5e3hhId6Zg7P1QJ4xGVkWkt9sA_7LqgIFA_r0GecMB4gNds8oHAb2PZ_3O8J5DqtjhtHa98iCXbFLXFpYDir6DNm-Hsn9BI7TmKAEf6EbtWOWSw8-_oFBGS94zcY8cX_sIH4GVYP856YjYUP1byp63Drpv5syBMr7LgvKVOdlsQNR5lknkURLdM6OnnewuMdWW4yKXJAYy6XruwZI5xQymsNe9peaPsmgzBo0myOWnyC2nY5T2s1Rhtbicxm1iMkKQNs0K9736B8w1kg2XT9nGfs="
 
 TIMEZONE = pytz.timezone("Asia/Tashkent")
 
@@ -56,7 +58,7 @@ def get_soz(soat):
         return "Yoqimli ishtaxa 🍽️"
     elif soat == 22:
         return "Hayrli kech 🌙"
-    elif soat >= 23 or soat < 3:
+    elif soat >= 23 or soat < 6:
         return "Hayrli tun 😴"
     else:
         return "Online 💻"
@@ -102,7 +104,7 @@ def get_bio():
 
 async def main():
     print("⏰ Bio boti ishga tushmoqda...")
-    async with TelegramClient("bio_session", API_ID, API_HASH) as client:
+    async with TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH) as client:
         print("✅ Ulandi!")
         while True:
             bio = get_bio()
@@ -112,7 +114,7 @@ async def main():
                 print("✅ Yangilandi!\n")
             except Exception as e:
                 print(f"❌ Xato: {e}\n")
-            await asyncio.sleep(5)
+            await asyncio.sleep(60)
 
 if __name__ == "__main__":
     asyncio.run(main())

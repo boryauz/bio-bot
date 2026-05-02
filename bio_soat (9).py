@@ -41,7 +41,6 @@ def get_weather():
     except:
         return 28, 3, "Quyoshli", "05:12", "19:48"
 
-# Bio turi — har 10 daqiqada o'zgaradi
 bio_type = 0
 minute_counter = 0
 
@@ -56,26 +55,34 @@ def get_bio():
     hafta = HAFTA_KUNLARI[now.weekday()]
     yil_kuni = now.timetuple().tm_yday
 
-    # Har 10 daqiqada bio turi o'zgaradi
-    if minute_counter % 10 == 0:
-        bio_type = (bio_type + 1) % 3
-    minute_counter += 1
-
-    # Tungi bio (00:00 - 06:00)
-    if 0 <= soat < 6:
+    # 00:00 - 01:00 Hayrli tun
+    if soat == 0:
         return (
             f"🌙 Hayrli tun!\n"
             f"Yaxshi uxlang! 😴\n"
             f"📅 {kun} {oy} {yil} | ⏰ {soat_str}"
         )
 
-    # Ertalabki bio (06:00 - 07:00)
-    if 6 <= soat < 7:
+    # 02:00 - 05:00 Nega uxlamayapsan
+    if 2 <= soat < 6:
+        return (
+            f"😅 Nega uxlamayapsan?\n"
+            f"Yarim tun bo'ldi! 🌙\n"
+            f"⏰ {soat_str} | Uxla! 😴"
+        )
+
+    # 06:00 - 07:00 Hayrli tong
+    if soat == 6:
         return (
             f"🌅 Hayrli tong!\n"
             f"Yaxshi dam oldingmi?\n"
             f"📅 {kun} {oy} {yil} | ⏰ {soat_str}"
         )
+
+    # Har 10 daqiqada bio turi o'zgaradi
+    if minute_counter % 10 == 0:
+        bio_type = (bio_type + 1) % 4
+    minute_counter += 1
 
     # Kun davomida
     temp, wind, desc, sunrise, sunset = get_weather()
@@ -94,12 +101,19 @@ def get_bio():
             f"⏰ {soat_str} | 💨 {wind} m/s\n"
             f"🌅 {sunrise} | 🌇 {sunset}"
         )
-    else:
+    elif bio_type == 2:
         return (
             f"😎 Burxon Xayrullayev\n"
             f"zerikkanda qilgan ishi\n"
             f"⏰ {soat_str} | {kun} {oy} {yil}\n"
             f"🔥 Bio bot!"
+        )
+    else:
+        return (
+            f"📅 Bugun: {hafta} | {kun} {oy}\n"
+            f"🌤 Buxoro: +{temp}°C {desc}\n"
+            f"✨ Bugungi kun baroqli o'tsin!\n"
+            f"⏰ {soat_str}"
         )
 
 async def main():
@@ -114,7 +128,7 @@ async def main():
                 print("✅ Yangilandi!\n")
             except Exception as e:
                 print(f"❌ Xato: {e}\n")
-            await asyncio.sleep(60)  # Har daqiqada yangilanadi
+            await asyncio.sleep(60)
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -12,7 +12,7 @@ API_ID = 18512808
 API_HASH = "3a93474fc8f3c16eb494faeb41a891c2"
 SESSION_STRING = "1ApWapzMBu1mBpd6Ad9ZUOv9wJLlfmfFRCtGbQExCanIy-q2-n7YJBmrCvsTWLiNRAxfsQ36hRf-aBBEzJ8JWKGvhrbcmvLNajmstsqRcfVpxe_EZXFaSm0DyNNsFeBw_tzPjvUJ8Ubbwbbb-SAPZfzEWfW8AClo5t-Pm0MqqEHuUxX--zyTgPgfzkYa8ueOHtujd-EpaTHum8-svSVADhHf2AM6rH6pZccUmsZ2VtKz1RhpjWmhWCbCrnVIHBOzk2gRHJGEAj32ABxv52-EcV0eRyR88gCnTotETQJCQb90z5Hnd0VcUrH7tWhU-_YOIbcxfzbQI5Rg9SKomhdobZa9aPf1R8aU="
 
-WEATHER_API_KEY = "501c16a296be1c368b4865b05b6a1994"  # openweathermap.org dan oling
+WEATHER_API_KEY = "501c16a296be1c368b4865b05b6a1994"
 CITY = "Bukhara"
 
 TIMEZONE = pytz.timezone("Asia/Tashkent")
@@ -41,10 +41,12 @@ def get_weather():
     except:
         return 28, 3, "Quyoshli", "05:12", "19:48"
 
-bio_index = 0
+# Bio turi — har 10 daqiqada o'zgaradi
+bio_type = 0
+minute_counter = 0
 
 def get_bio():
-    global bio_index
+    global bio_type, minute_counter
     now = datetime.now(TIMEZONE)
     soat = now.hour
     soat_str = now.strftime("%H:%M")
@@ -53,6 +55,11 @@ def get_bio():
     yil = now.year
     hafta = HAFTA_KUNLARI[now.weekday()]
     yil_kuni = now.timetuple().tm_yday
+
+    # Har 10 daqiqada bio turi o'zgaradi
+    if minute_counter % 10 == 0:
+        bio_type = (bio_type + 1) % 3
+    minute_counter += 1
 
     # Tungi bio (00:00 - 06:00)
     if 0 <= soat < 6:
@@ -70,36 +77,30 @@ def get_bio():
             f"📅 {kun} {oy} {yil} | ⏰ {soat_str}"
         )
 
-    # Kun davomida — 4 bio almashib turadi
+    # Kun davomida
     temp, wind, desc, sunrise, sunset = get_weather()
 
-    bios = [
-        # 1 - Universitet
-        (
+    if bio_type == 0:
+        return (
             f"꧁ UBS | Arxitektura ꧂\n"
             f"🖥 AutoCAD•3Ds Max•Corona\n"
             f"📅 {kun} {oy} | ⏰ {soat_str}\n"
             f"📆 {yil_kuni}-kun | Maqsadlar sari! 🎯"
-        ),
-        # 2 - Ob-havo
-        (
+        )
+    elif bio_type == 1:
+        return (
             f"📅 {hafta} | {kun} {oy} {yil}\n"
             f"🌤 Buxoro: +{temp}°C {desc}\n"
             f"⏰ {soat_str} | 💨 {wind} m/s\n"
             f"🌅 {sunrise} | 🌇 {sunset}"
-        ),
-        # 3 - Zerikkanda
-        (
+        )
+    else:
+        return (
             f"😎 Burxon Xayrullayev\n"
             f"zerikkanda qilgan ishi\n"
             f"⏰ {soat_str} | {kun} {oy} {yil}\n"
             f"🔥 Bio bot!"
-        ),
-    ]
-
-    bio = bios[bio_index % len(bios)]
-    bio_index += 1
-    return bio
+        )
 
 async def main():
     print("⏰ Bio boti ishga tushmoqda...")
@@ -113,7 +114,7 @@ async def main():
                 print("✅ Yangilandi!\n")
             except Exception as e:
                 print(f"❌ Xato: {e}\n")
-            await asyncio.sleep(600)  # 10 daqiqada bir
+            await asyncio.sleep(60)  # Har daqiqada yangilanadi
 
 if __name__ == "__main__":
     asyncio.run(main())
